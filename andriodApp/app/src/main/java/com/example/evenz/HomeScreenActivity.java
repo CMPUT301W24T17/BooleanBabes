@@ -3,7 +3,6 @@ package com.example.evenz;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -53,94 +52,87 @@ public class HomeScreenActivity extends AppCompatActivity {
     private CollectionReference usersRef;
     private DocumentReference doc;
 
-
+    private ImageUtility imageUtility;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Extracting the role and eventID from the intent extras
         Bundle b = getIntent().getExtras();
         assert b != null;
         String role = b.getString("role");
         eventID = b.getString("eventID");
 
+        // Checking if the role is "attendee" and setting the appropriate layout
         if (Objects.equals(role, "attendee")) {
             setContentView(R.layout.attendees_home_page);
-
-            notificationsRecyclerView = findViewById(R.id.notificationsRecyclerView);
-            notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-            eventPoster = findViewById(R.id.attendee_home_event_poster);
-            eventLocation = findViewById(R.id.attendee_home_event_location);
-            eventDetail = findViewById(R.id.attendee_home_event_detail);
-
-//            if (!specificEventId.isEmpty()) {
-            if (!eventID.isEmpty()) {
-                fetchEventDetailsAndNotifications(eventID);
-            }
-
-            ImageView browseEvent = findViewById(R.id.event_list);
-            browseEvent.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(HomeScreenActivity.this, EventBrowseActivity.class));
-                }
-            });
-
-            ImageView eventPoster = findViewById(R.id.attendee_home_event_poster);
-            eventPoster.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(HomeScreenActivity.this, AttendeeEventInfoActivity.class));
-                }
-            });
-
+            setupAttendeeView();
         } else {
             setContentView(R.layout.org_home_page);
-
-            notificationsRecyclerView = findViewById(R.id.notificationsRecyclerView);
-            notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-            eventPoster = findViewById(R.id.org_home_event_poster);
-            eventLocation = findViewById(R.id.org_home_event_location);
-            eventDetail = findViewById(R.id.org_home_event_detail);
-
-            if (!eventID.isEmpty()) {
-                fetchEventDetailsAndNotifications(eventID);
-            }
-
-            FloatingActionButton postNotification = findViewById(R.id.add_fab);
-            postNotification.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(HomeScreenActivity.this, OrgSendNotificationActivity.class);
-                    Bundle b = new Bundle();
-                    b.putString("eventID", eventID);
-                    intent.putExtras(b);
-                    startActivity(intent);
-                }
-            });
-
-            ImageView shareQR = findViewById(R.id.shareQR);
-            shareQR.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    QRGenerator test = new QRGenerator();
-                    Bitmap bitmap = test.generate(eventID, 400, 400);
-                    Uri bitmapUri = saveBitmapToCache(bitmap);
-
-                    Intent intent = new Intent(HomeScreenActivity.this, ShareQRActivity.class);
-                    intent.putExtra("BitmapImage", bitmapUri.toString());
-                    startActivity(intent);
-//                    ImageView qrimg = findViewById(R.id.QRcode);
-//                    qrimg.setImageBitmap(bitmap);
-                }
-            });
-
+            setupOrganizerView();
         }
+
+        imageUtility = new ImageUtility();
     }
 
+    // This method sets up the view for the attendee
+    private void setupAttendeeView() {
+        notificationsRecyclerView = findViewById(R.id.notificationsRecyclerView);
+        notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        eventPoster = findViewById(R.id.attendee_home_event_poster);
+        eventLocation = findViewById(R.id.attendee_home_event_location);
+        eventDetail = findViewById(R.id.attendee_home_event_detail);
+
+        // Fetch event details and notifications only if eventID is not null and not empty
+        if (eventID != null && !Objects.equals(eventID, " ")) {
+            fetchEventDetailsAndNotifications(eventID);
+        }
+
+        ImageView browseEvent = findViewById(R.id.event_list);
+        browseEvent.setOnClickListener(v -> startActivity(new Intent(HomeScreenActivity.this, EventBrowseActivity.class)));
+
+        ImageView eventPoster = findViewById(R.id.attendee_home_event_poster);
+        eventPoster.setOnClickListener(v -> startActivity(new Intent(HomeScreenActivity.this, AttendeeEventInfoActivity.class)));
+    }
+
+    // This method sets up the view for the organizer
+    private void setupOrganizerView() {
+        notificationsRecyclerView = findViewById(R.id.notificationsRecyclerView);
+        notificationsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        eventPoster = findViewById(R.id.org_home_event_poster);
+        eventLocation = findViewById(R.id.org_home_event_location);
+        eventDetail = findViewById(R.id.org_home_event_detail);
+
+        // Fetch event details and notifications only if eventID is not null and not empty
+        if (eventID != null && !eventID.isEmpty()) {
+            fetchEventDetailsAndNotifications(eventID);
+        }
+
+        FloatingActionButton postNotification = findViewById(R.id.add_fab);
+        postNotification.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeScreenActivity.this, OrgSendNotificationActivity.class);
+            Bundle b = new Bundle();
+            b.putString("eventID", eventID);
+            intent.putExtras(b);
+            startActivity(intent);
+        });
+
+        ImageView shareQR = findViewById(R.id.shareQR);
+        shareQR.setOnClickListener(v -> {
+            QRGenerator test = new QRGenerator();
+            Bitmap bitmap = test.generate(eventID, 400, 400);
+            Uri bitmapUri = saveBitmapToCache(bitmap);
+
+            Intent intent = new Intent(HomeScreenActivity.this, ShareQRActivity.class);
+            intent.putExtra("BitmapImage", bitmapUri.toString());
+            startActivity(intent);
+        });
+    }
+
+    // This method saves the bitmap to cache and returns the Uri
     private Uri saveBitmapToCache(Bitmap bitmap) {
         try {
             File cachePath = new File(getCacheDir(), "images");
@@ -157,17 +149,18 @@ public class HomeScreenActivity extends AppCompatActivity {
         }
         return null;
     }
+
+    // This method fetches event details and notifications from Firestore
     private void fetchEventDetailsAndNotifications(String eventId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("events").document(eventId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot != null && documentSnapshot.exists()) {
                 Event event = documentSnapshot.toObject(Event.class);
-                // Directly update the TextView with the event's location
 
                 if (event != null) {
                     eventDetail.setText("\uD83D\uDC4B Welcome to " + event.getEventName() + "! \uD83D\uDE80");
                     eventLocation.setText(event.getLocation());
-                    displayImage(event.getEventPosterID(), eventPoster);
+                    imageUtility.displayImage(event.getEventPosterID(), eventPoster);
 
                     ArrayList<String> notifications = event.getNotifications(); // Assuming this correctly fetches the notifications
                     if (notifications != null) {
@@ -183,30 +176,4 @@ public class HomeScreenActivity extends AppCompatActivity {
             // TODO: handle errors
         });
     }
-
-    private String getEventIdForHomeScreen() { //TODO: Implement this method populating the event ID
-        // Placeholder method to obtain the event ID
-        // Implement this to retrieve the event ID for the home screen
-        return "your_specific_event_id";
-    }
-    private void displayImage(String imageID, ImageView imgView)
-    {
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-        StorageReference photoReference= storageReference.child("images/" + imageID);
-
-        final long ONE_MEGABYTE = 1024 * 1024;
-        photoReference.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                imgView.setImageBitmap(bmp);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(HomeScreenActivity.this, "No Such file or Path found!!", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
 }
-
