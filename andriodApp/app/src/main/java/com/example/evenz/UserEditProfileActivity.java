@@ -128,7 +128,7 @@ public class UserEditProfileActivity extends AppCompatActivity {
 					Intent intent = new Intent(UserEditProfileActivity.this, HomeScreenActivity.class);
 					Bundle b = new Bundle();
 					b.putString("role", userType);
-					b.putString("eventID", "");
+					b.putString("eventID", "Y9m1eRkD9BgUW9UKLi52");
 					intent.putExtras(b);
 					startActivity(intent);
 				})

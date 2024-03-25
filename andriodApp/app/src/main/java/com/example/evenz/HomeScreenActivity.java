@@ -64,6 +64,7 @@ public class HomeScreenActivity extends AppCompatActivity {
         String role = b.getString("role");
         eventID = b.getString("eventID");
 
+
         // Checking if the role is "attendee" and setting the appropriate layout
         if (Objects.equals(role, "attendee")) {
             setContentView(R.layout.attendees_home_page);
@@ -166,9 +167,9 @@ public class HomeScreenActivity extends AppCompatActivity {
                     if (notifications != null) {
                         notificationsAdapter = new NotificationsAdapter(HomeScreenActivity.this, notifications);
                         notificationsRecyclerView.setAdapter(notificationsAdapter);
+                        notificationsAdapter.notifyDataSetChanged();
                     }
                 }
-                notificationsAdapter.notifyDataSetChanged();
             } else {
                 // TODO: Handle the case where the event doesn't exist in the database
             }
@@ -177,3 +178,4 @@ public class HomeScreenActivity extends AppCompatActivity {
         });
     }
 }
+
