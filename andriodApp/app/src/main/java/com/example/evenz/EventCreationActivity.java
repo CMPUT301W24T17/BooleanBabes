@@ -129,18 +129,18 @@ public class EventCreationActivity extends AppCompatActivity {
                 && data != null
                 && data.getData() != null) {
 
-                // Get the Uri of data
-                filePath = data.getData();
-                try {
+            // Get the Uri of data
+            filePath = data.getData();
+            try {
 
-                    // Setting image on image view using Bitmap
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                    imageView.setImageBitmap(bitmap);
-                } catch (IOException e) {
-                    // Log the exception
-                    e.printStackTrace();
-                }
+                // Setting image on image view using Bitmap
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                imageView.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                // Log the exception
+                e.printStackTrace();
             }
+        }
     }
 
 
@@ -214,19 +214,12 @@ public class EventCreationActivity extends AppCompatActivity {
         Event newEvent = new Event(orgName, eventName, eventPosterID, description, geolocation, qrCodeBrowse, qrCodeCheckIn, eventAttendeeLimit, userList, eventDate, notificationList, location);
 
         // Now, convert  Event object to a Map or directly use the attributes to add to Firestore
-        Map<String, Object> eventMap = new HashMap<>();
-        eventMap.put("organizationName", newEvent.getOrganizationName());
-        eventMap.put("eventName", newEvent.getEventName());
-        eventMap.put("description", newEvent.getDescription());
-        eventMap.put("AttendLimit", newEvent.getEventAttendLimit());
-        eventMap.put("eventDate", newEvent.getEventDate());
-        eventMap.put("location", newEvent.getLocation());
-        eventMap.put("eventPosterID", newEvent.getEventPosterID());
-        eventMap.put("notifications", newEvent.getNotifications());
+        Map<String, Object> eventMap1 = EventUtility.evtomMap(newEvent);
 
         // added add() so, event ID will be automatically generated.
         // TODO: review with TEAM
-        newEventRef.set(eventMap);
+
+        EventUtility.storeEventwnm(eventMap1, eventID);
 
         userDocRef.update("eventList", eventID).addOnFailureListener(new OnFailureListener() {
             @OptIn(markerClass = UnstableApi.class) @Override
@@ -289,4 +282,3 @@ public class EventCreationActivity extends AppCompatActivity {
         }
     }
 }
-

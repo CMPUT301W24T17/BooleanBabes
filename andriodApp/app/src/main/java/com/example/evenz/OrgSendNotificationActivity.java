@@ -74,48 +74,6 @@ public class OrgSendNotificationActivity extends AppCompatActivity {
 
     private void fetchEventDetailsAndNotifications(String eventID, String notificationType,
                                                    String notificationInfo) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference specificEventRef = db.collection("events").document(eventID);
-        specificEventRef.get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot != null && documentSnapshot.exists()) {
-                Event event = documentSnapshot.toObject(Event.class);
-                // Directly update the TextView with the event's location
-
-                if (event != null) {
-                    ArrayList<String> notifications = event.getNotifications(); // Assuming this correctly fetches the notifications
-                    if (notifications != null) {
-                        notifications.add(notificationType+", "+notificationInfo);
-
-                        Map<String, Object> eventMap = new HashMap<>();
-                        eventMap.put("organizationName", event.getOrganizationName());
-                        eventMap.put("eventName", event.getEventName());
-                        eventMap.put("description", event.getDescription());
-                        eventMap.put("AttendLimit", event.getEventAttendLimit());
-                        eventMap.put("eventDate", event.getEventDate());
-                        eventMap.put("location", event.getLocation());
-                        eventMap.put("eventPosterID", event.getEventPosterID());
-                        eventMap.put("notifications", notifications);
-                        specificEventRef.set(eventMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(OrgSendNotificationActivity.this, "Course has been updated..", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @OptIn(markerClass = UnstableApi.class)
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        // Handle the error
-                                        Log.w("Firestore", "Error adding document", e);
-                                    }
-                                });
-                    }
-                }
-            } else {
-                // TODO: Handle the case where the event doesn't exist in the database
-            }
-        }).addOnFailureListener(e -> {
-            // TODO: handle errors
-        });
+        EventUtility.notificationOps(notificationType, notificationInfo, eventID, 1);
     }
 }

@@ -160,6 +160,9 @@ public class MainActivity extends AppCompatActivity {
         create_new_user.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, UserEditProfileActivity.class);
+                Bundle b = new Bundle();
+                b.putString("role", "attendee");
+                intent.putExtras(b);
                 startActivity(intent);
             }
         });

@@ -12,6 +12,7 @@ public class User
     private String userId;
 
     private String userType;
+    private ArrayList<String> eventsSignedUpFor;
 
     // Default constructor required for calls to DataSnapshot.getValue(User.class)
     public User() {
@@ -70,6 +71,18 @@ public class User
     public String getUserType() {
         return userType;
     }
+
+
+    public ArrayList<String> getEventsSignedUpFor() {
+        return eventsSignedUpFor;
+    }
+
+    public void setEventsSignedUpFor(ArrayList<String> eventsSignedUpFor) {
+        this.eventsSignedUpFor = eventsSignedUpFor;
+    }
+
+
+
 
     public void setUserType(String userType) {
         this.userType = userType;

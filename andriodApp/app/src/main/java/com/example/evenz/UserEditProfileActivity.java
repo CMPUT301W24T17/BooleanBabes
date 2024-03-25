@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -29,6 +30,7 @@ import java.util.Map;
 public class UserEditProfileActivity extends AppCompatActivity {
 
 	private static final int PICK_IMAGE_REQUEST = 22;
+	private static final String TAG = "UserEditProfileActivity";
 	private Uri filePath;
 
 	private ImageView imageView;
@@ -83,6 +85,7 @@ public class UserEditProfileActivity extends AppCompatActivity {
 		Bundle b = getIntent().getExtras();
 		assert b != null;
 		String userType = b.getString("role");
+		String eventID = b.getString("eventID");
 
 		@SuppressLint("HardwareIds") String deviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
@@ -93,17 +96,11 @@ public class UserEditProfileActivity extends AppCompatActivity {
 			if (task.isSuccessful()) {
 				DocumentSnapshot document = task.getResult();
 				if (document.exists()) {
-					updateUserProfile(name, phone, email, userType, userDocRef, null);
+					updateUserProfile(name, phone, email, userType, userDocRef, eventID);
 					Toast.makeText(UserEditProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
 				} else {
-					if (filePath != null) {
-						final String profilePicId = imageUtility.upload(filePath);
-						updateUserProfile(name, phone, email, userType, userDocRef, profilePicId);
-						Toast.makeText(UserEditProfileActivity.this, "Profile added successfully", Toast.LENGTH_SHORT).show();
-					} else {
-						updateUserProfile(name, phone, email, userType, userDocRef, null);
-						Toast.makeText(UserEditProfileActivity.this, "Profile added successfully", Toast.LENGTH_SHORT).show();
-					}
+					createNewUserProfile(name, phone, email, userType, userDocRef);
+					Toast.makeText(UserEditProfileActivity.this, "Profile added successfully", Toast.LENGTH_SHORT).show();
 				}
 			} else {
 				Toast.makeText(UserEditProfileActivity.this, "Failed to check if user exists: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -111,7 +108,26 @@ public class UserEditProfileActivity extends AppCompatActivity {
 		});
 	}
 
-	private void updateUserProfile(String name, String phone, String email, String userType, DocumentReference userDocRef, String profilePicId) {
+	private void updateUserProfile(String name, String phone, String email, String userType, DocumentReference userDocRef, String eventID) {
+		Map<String, Object> userMap = new HashMap<>();
+		userMap.put("name", name);
+		userMap.put("phone", phone);
+		userMap.put("email", email);
+
+		userDocRef.update(userMap)
+				.addOnSuccessListener(aVoid -> {
+					Intent intent = new Intent(UserEditProfileActivity.this, HomeScreenActivity.class);
+					Bundle b = new Bundle();
+					b.putString("role", userType);
+					b.putString("eventID", eventID);
+
+					intent.putExtras(b);
+					startActivity(intent);
+				})
+				.addOnFailureListener(e -> Toast.makeText(UserEditProfileActivity.this, "Failed to update profile: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+	}
+
+	private void createNewUserProfile(String name, String phone, String email, String userType, DocumentReference userDocRef) {
 		Map<String, Object> userMap = new HashMap<>();
 		userMap.put("name", name);
 		userMap.put("phone", phone);
@@ -119,19 +135,16 @@ public class UserEditProfileActivity extends AppCompatActivity {
 		userMap.put("userType", userType);
 		userMap.put("eventID", "");
 
-		if (profilePicId != null) {
-			userMap.put("profilePicId", profilePicId);
-		}
-
 		userDocRef.set(userMap)
 				.addOnSuccessListener(aVoid -> {
 					Intent intent = new Intent(UserEditProfileActivity.this, HomeScreenActivity.class);
 					Bundle b = new Bundle();
 					b.putString("role", userType);
-					b.putString("eventID", "Y9m1eRkD9BgUW9UKLi52");
+					b.putString("eventID", "CLQuoRALxppaIHscuwnG");
 					intent.putExtras(b);
 					startActivity(intent);
 				})
-				.addOnFailureListener(e -> Toast.makeText(UserEditProfileActivity.this, "Failed to update profile: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+				.addOnFailureListener(e -> Toast.makeText(UserEditProfileActivity.this, "Failed to create profile: " + e.getMessage(), Toast.LENGTH_SHORT).show());
 	}
+
 }

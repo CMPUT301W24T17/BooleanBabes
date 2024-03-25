@@ -96,6 +96,16 @@ public class HomeScreenActivity extends AppCompatActivity {
 
         ImageView eventPoster = findViewById(R.id.attendee_home_event_poster);
         eventPoster.setOnClickListener(v -> startActivity(new Intent(HomeScreenActivity.this, AttendeeEventInfoActivity.class)));
+
+        ImageView profileAttendee = findViewById(R.id.profile_attendee);
+        profileAttendee.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeScreenActivity.this, UserEditProfileActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("eventID", eventID);
+            bundle.putString("role", "attendee");
+            intent.putExtras(bundle);
+            startActivity(intent);
+        });
     }
 
     // This method sets up the view for the organizer
