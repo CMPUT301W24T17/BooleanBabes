@@ -71,7 +71,7 @@
 		</LinearLayout>
 
 		<LinearLayout
-			android:id="@+id/continer_event_summary_date_icon1"
+			android:id="@+id/info_attendee_eventInfo"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="315dp"

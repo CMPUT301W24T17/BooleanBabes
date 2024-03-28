@@ -59,12 +59,14 @@ public class InitialPageActivity extends AppCompatActivity {
                                     Intent intent = new Intent(InitialPageActivity.this, HomeScreenActivity.class);
                                     Bundle b = new Bundle();
                                     b.putString("role", "attendee");
+                                    b.putString("eventID", "CLQuoRALxppaIHscuwnG");
                                     intent.putExtras(b);
                                     startActivity(intent);
                                 } else {
-                                    Intent intent = new Intent(InitialPageActivity.this, ScanQRActivity.class);
+                                    Intent intent = new Intent(InitialPageActivity.this, HomeScreenActivity.class);
                                     Bundle b = new Bundle();
                                     b.putString("role", "attendee");
+                                    b.putString("eventID", "CLQuoRALxppaIHscuwnG");
                                     intent.putExtras(b);
                                     startActivity(intent);
                                 }
@@ -86,7 +88,7 @@ public class InitialPageActivity extends AppCompatActivity {
         attendeeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(InitialPageActivity.this, ScanQRActivity.class);
+                Intent intent = new Intent(InitialPageActivity.this, UserEditProfileActivity.class);
                 Bundle b = new Bundle();
                 b.putString("role", "attendee");
                 intent.putExtras(b);

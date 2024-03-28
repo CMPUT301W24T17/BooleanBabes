@@ -1,5 +1,6 @@
 package com.example.evenz;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,7 @@ import java.util.List;
  * <p>
  * The AttendeeAdapter class provides a ViewHolder class that represents the view for each item in the RecyclerView. The ViewHolder class includes a profile image view, a name text view, and a contact info text view for displaying the Attendee's profile image, name, and contact info, respectively.
  * <p>
- * The AttendeeAdapter class also provides a method for printing the details of all Attendees in the list for debugging purposes.
+ * The AttendeeAdapter class also provides a method for logging the details of all Attendees in the list for debugging purposes.
  *
  * @version 1.0
  * @see Attendee
@@ -40,16 +41,15 @@ class AttendeeAdapter extends RecyclerView.Adapter<AttendeeAdapter.ViewHolder> {
      */
     public AttendeeAdapter(List<Attendee> attendeesList) {
         this.attendeesList = attendeesList;
-        printAttendees();
+        logAttendees();
     }
 
     /**
-     * Prints the details of all attendees in the list for debugging purposes.
+     * Logs the details of all attendees in the list for debugging purposes.
      */
-    public void printAttendees() {
+    public void logAttendees() {
         for (Attendee attendee : attendeesList) {
-            System.out.println(attendee.getName());
-            System.out.println(attendee.getEmail());
+            Log.d("AttendeeAdapter", "Name: " + attendee.getName() + ", Email: " + attendee.getEmail());
         }
     }
 
@@ -77,7 +77,7 @@ class AttendeeAdapter extends RecyclerView.Adapter<AttendeeAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, int position) {
         Attendee attendee = attendeesList.get(position);
         holder.nameTextView.setText(attendee.getName());
-        holder.contactInfoTextView.setText(String.format("%s\\n%s", attendee.getPhone(), attendee.getEmail()));
+        holder.contactInfoTextView.setText(String.format("%s\n%s", attendee.getPhone(), attendee.getEmail()));
     }
 
     /**

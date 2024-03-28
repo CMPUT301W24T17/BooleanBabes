@@ -3,10 +3,16 @@ package com.example.evenz;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.List;
 
@@ -44,22 +50,27 @@ public class AttendeesActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Initialize the FirebaseAttendeeManager to fetch attendees from Firebase
-        FirebaseAttendeeManager attendeeManager = new FirebaseAttendeeManager();
+        FirebaseAttendeeManager firebaseAttendeeManager = new FirebaseAttendeeManager();
 
-        // Fetch the attendees for the "Drake Concert" event
-        attendeeManager.getEventAttendees("Drake Concert").addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                // If the task is successful, get the list of attendees and print their names
-                attendeesList = task.getResult();
-                for (Attendee attendee : attendeesList) {
-                    System.out.println(attendee.getName());
-                }
-                // Initialize the AttendeeAdapter with the list of attendees and set it as the adapter for the RecyclerView
-                adapter = new AttendeeAdapter(attendeesList);
+        // Call getEventAttendees with the event ID
+        Task<List<Attendee>> getAttendeesTask = firebaseAttendeeManager.getEventAttendees("Drake Concert");
+
+// Add a listener to handle the result when the task completes
+        getAttendeesTask.addOnSuccessListener(new OnSuccessListener<List<Attendee>>() {
+            @Override
+            public void onSuccess(List<Attendee> attendees) {
+                // The attendees list contains all the attendees for the "Drake Concert" event
+                // Here you can update your RecyclerView or UI components
+                // For example:
+                attendeesList = attendees;
+                AttendeeAdapter adapter = new AttendeeAdapter(attendeesList);
                 recyclerView.setAdapter(adapter);
-            } else {
-                // If the task is not successful, print an error message
-                System.out.println("Task was not successful");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // Handle the error case
+                Toast.makeText(AttendeesActivity.this, "Error fetching attendees: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

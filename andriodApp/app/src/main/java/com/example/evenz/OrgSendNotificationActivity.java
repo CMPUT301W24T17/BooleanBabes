@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ import java.util.Map;
 
 public class OrgSendNotificationActivity extends AppCompatActivity {
     TextView post;
+    ImageView back;
     String eventID;
     EditText editTextNotificationType, editTextNotificationInfo;
 
@@ -46,17 +48,28 @@ public class OrgSendNotificationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 initUI();
-                postNotificaion();
+                postNotification();
                 Intent intent = new Intent(new Intent(OrgSendNotificationActivity.this, HomeScreenActivity.class));
                 Bundle b = new Bundle();
-                b.putString("role", "org");
+                b.putString("role", "organizer");
+                b.putString("eventID", eventID);
                 intent.putExtras(b);
                 startActivity(intent);
-                startActivity(new Intent(OrgSendNotificationActivity.this, HomeScreenActivity.class));
             }
         });
 
-        findViewById(R.id.back_send_notification).setOnClickListener(v -> finish());
+        back = findViewById(R.id.back_send_notification);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(new Intent(OrgSendNotificationActivity.this, HomeScreenActivity.class));
+                Bundle b = new Bundle();
+                b.putString("role", "organizer");
+                b.putString("eventID", eventID);
+                intent.putExtras(b);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initUI() {
@@ -64,57 +77,14 @@ public class OrgSendNotificationActivity extends AppCompatActivity {
         editTextNotificationInfo = findViewById(R.id.editTextNotificationInfo);
     }
 
-    private void postNotificaion () {
+    private void postNotification () {
         String notificationType = editTextNotificationType.getText().toString().trim();
         String notificationInfo = editTextNotificationInfo.getText().toString().trim();
 
         fetchEventDetailsAndNotifications(eventID, notificationType, notificationInfo);
     }
 
-    private void fetchEventDetailsAndNotifications(String eventID, String notificationType,
-                                                   String notificationInfo) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference specificEventRef = db.collection("events").document(eventID);
-        specificEventRef.get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot != null && documentSnapshot.exists()) {
-                Event event = documentSnapshot.toObject(Event.class);
-                // Directly update the TextView with the event's location
-
-                if (event != null) {
-                    ArrayList<String> notifications = event.getNotifications(); // Assuming this correctly fetches the notifications
-                    if (notifications != null) {
-                        notifications.add(notificationType+", "+notificationInfo);
-
-                        Map<String, Object> eventMap = new HashMap<>();
-                        eventMap.put("organizationName", event.getOrganizationName());
-                        eventMap.put("eventName", event.getEventName());
-                        eventMap.put("description", event.getDescription());
-                        eventMap.put("AttendLimit", event.getEventAttendLimit());
-                        eventMap.put("eventDate", event.getEventDate());
-                        eventMap.put("location", event.getLocation());
-                        eventMap.put("eventPosterID", event.getEventPosterID());
-                        eventMap.put("notifications", notifications);
-                        specificEventRef.set(eventMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(OrgSendNotificationActivity.this, "Course has been updated..", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @OptIn(markerClass = UnstableApi.class)
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        // Handle the error
-                                        Log.w("Firestore", "Error adding document", e);
-                                    }
-                                });
-                    }
-                }
-            } else {
-                // TODO: Handle the case where the event doesn't exist in the database
-            }
-        }).addOnFailureListener(e -> {
-            // TODO: handle errors
-        });
+    private void fetchEventDetailsAndNotifications(String eventID, String notificationType, String notificationInfo) {
+        EventUtility.notificationOps(notificationType, notificationInfo, eventID, 1);
     }
 }

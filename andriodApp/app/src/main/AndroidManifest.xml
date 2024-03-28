@@ -3,6 +3,8 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-feature android:name="android.hardware.camera"/>
     <application
@@ -20,10 +22,7 @@
             android:name=".EventCreationActivity"
             android:exported="true" />
         <activity
-            android:name=".AttendeeEventInfoActivity"
-            android:exported="true" />
-        <activity
-            android:name=".AttendeeEventInfoSignUpActivity"
+            android:name=".EventDetailsActivity"
             android:exported="true" />
         <activity
             android:name=".AdminBrowseEventActivity"
@@ -31,13 +30,6 @@
         <activity
             android:name=".EventBrowseActivity"
             android:exported="true"/>
-<!--        <activity-->
-<!--            android:name=".UserEditProfileActivity"-->
-<!--            android:exported="false" />-->
-<!--        <activity-->
-<!--            android:name=".AdminBrowseProfilesActivity"-->
-<!--            android:exported="false" />-->
-
         <activity
             android:name=".OrgSendNotificationActivity"
             android:exported="true"/>
@@ -54,6 +46,13 @@
             android:name=".ShareQRActivity"
             android:exported="true"/>
         <activity
+            android:name=".UserEditProfileActivity"
+            android:exported="true" />
+        <activity
+            android:name=".AttendeesActivity"
+            android:exported="true" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true">
 
@@ -62,5 +61,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.anni.shareimage.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/paths" />
+        </provider>
     </application>
 </manifest>

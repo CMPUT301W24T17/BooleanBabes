@@ -25,7 +25,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -127,18 +129,18 @@ public class EventCreationActivity extends AppCompatActivity {
                 && data != null
                 && data.getData() != null) {
 
-                // Get the Uri of data
-                filePath = data.getData();
-                try {
+            // Get the Uri of data
+            filePath = data.getData();
+            try {
 
-                    // Setting image on image view using Bitmap
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                    imageView.setImageBitmap(bitmap);
-                } catch (IOException e) {
-                    // Log the exception
-                    e.printStackTrace();
-                }
+                // Setting image on image view using Bitmap
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                imageView.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                // Log the exception
+                e.printStackTrace();
             }
+        }
     }
 
 
@@ -168,8 +170,10 @@ public class EventCreationActivity extends AppCompatActivity {
 
         // Reference to 'users' collection
         DocumentReference userDocRef = db.collection("users").document(deviceID);
+        DocumentReference newEventRef = db.collection("events").document();
 
-        userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        eventID = newEventRef.getId(); // Use this eventID for your operations
+        userDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() { //TODO: For MVP we are considering the eventList to be a string and not handling update if the user already exist; make ure you update that
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -182,6 +186,7 @@ public class EventCreationActivity extends AppCompatActivity {
                         newUser.put("userType", "organizer");
                         // Add other user details as needed
                         newUser.put("userId", deviceID); // Assuming you want to use deviceID as userId
+                        newUser.put("eventList", eventID);
 
                         // Save the new user
                         db.collection("users").document(deviceID).set(newUser);
@@ -189,6 +194,7 @@ public class EventCreationActivity extends AppCompatActivity {
                 }
             }
         });
+
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
         Date eventDate = null;
 
@@ -208,89 +214,71 @@ public class EventCreationActivity extends AppCompatActivity {
         Event newEvent = new Event(orgName, eventName, eventPosterID, description, geolocation, qrCodeBrowse, qrCodeCheckIn, eventAttendeeLimit, userList, eventDate, notificationList, location);
 
         // Now, convert  Event object to a Map or directly use the attributes to add to Firestore
-        Map<String, Object> eventMap = new HashMap<>();
-        eventMap.put("organizationName", newEvent.getOrganizationName());
-        eventMap.put("eventName", newEvent.getEventName());
-        eventMap.put("description", newEvent.getDescription());
-        eventMap.put("AttendLimit", newEvent.getEventAttendLimit());
-        eventMap.put("eventDate", newEvent.getEventDate());
-        eventMap.put("location", newEvent.getLocation());
-        eventMap.put("eventPosterID", newEvent.getEventPosterID());
-        eventMap.put("notifications", newEvent.getNotifications());
+        Map<String, Object> eventMap1 = EventUtility.evtomMap(newEvent);
 
         // added add() so, event ID will be automatically generated.
         // TODO: review with TEAM
-        db.collection("events").add(eventMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @OptIn(markerClass = UnstableApi.class)
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        // Successfully added event with auto-generated ID
-                        Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
-                        userDocRef.update("eventList", documentReference.getId());
-                        eventID = documentReference.getId();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @OptIn(markerClass = UnstableApi.class)
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Handle the error
-                        Log.w("Firestore", "Error adding document", e);
-                    }
-                });
+
+        EventUtility.storeEventwnm(eventMap1, eventID);
+
+        userDocRef.update("eventList", eventID).addOnFailureListener(new OnFailureListener() {
+            @OptIn(markerClass = UnstableApi.class) @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Firestore", "Error updating document", e);
+            }
+        });
     }
 
-        private void select()
-        {
-            Intent intent = new Intent();
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select Image from here..."), PICK_IMAGE_REQUEST);
+    private void select()
+    {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Image from here..."), PICK_IMAGE_REQUEST);
+    }
+
+    /**
+     * Given that filePath has already been defined within the activity, uploads an image previously selected by the user
+     * This includes adding the image to the firebase storage with proper notifications for upload progress.
+     */
+    private void upload(StorageReference photoRef) {
+        if (filePath != null) {
+            ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+
+            // Defining the child of storageReference
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+
+
+            // adding listeners on upload
+            // or failure of image
+            photoRef.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                            // Image uploaded successfully
+                            // Dismiss dialog
+                            progressDialog.dismiss();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                            // Error, Image not uploaded
+                            progressDialog.dismiss();
+                        }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+
+                        // Progress Listener for loading
+                        // percentage on the dialog box
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+                            progressDialog.setMessage("Uploaded " + (int) progress + "%");
+                        }
+                    });
         }
-
-        /**
-         * Given that filePath has already been defined within the activity, uploads an image previously selected by the user
-         * This includes adding the image to the firebase storage with proper notifications for upload progress.
-         */
-        private void upload(StorageReference photoRef) {
-            if (filePath != null) {
-                ProgressDialog progressDialog = new ProgressDialog(this);
-                progressDialog.setTitle("Uploading...");
-                progressDialog.show();
-
-                // Defining the child of storageReference
-                StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-
-
-                // adding listeners on upload
-                // or failure of image
-                photoRef.putFile(filePath)
-                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                                // Image uploaded successfully
-                                // Dismiss dialog
-                                progressDialog.dismiss();
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-
-                                // Error, Image not uploaded
-                                progressDialog.dismiss();
-                            }
-                        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-
-                            // Progress Listener for loading
-                            // percentage on the dialog box
-                            @Override
-                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                                double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
-                                progressDialog.setMessage("Uploaded " + (int) progress + "%");
-                            }
-                        });
-            }
-        }
+    }
 }
-

@@ -112,24 +112,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //  TODO: Demo Button, Need to be deleted
-        final Button attendee_event_info = findViewById(R.id.button_attendee_event_info);
-        attendee_event_info.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, AttendeeEventInfoActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        //  TODO: Demo Button, Need to be deleted
-        final Button attendee_event_info_signup = findViewById(R.id.button_attendee_event_info_signup);
-        attendee_event_info_signup.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, AttendeeEventInfoSignUpActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        //  TODO: Demo Button, Need to be deleted
         final Button event_browse = findViewById(R.id.button_event_browse);
         event_browse.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -146,6 +128,27 @@ public class MainActivity extends AppCompatActivity {
 //                startActivity(intent);
 //            }
 //        });
+
+        //  TODO: Demo Button, Need to be deleted
+        final Button attendee_list = findViewById(R.id.button_attendee);
+        attendee_list.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, AttendeesActivity.class);
+                startActivity(intent);
+            }
+        });
+        //  TODO: Demo Button, Need to be deleted
+        final Button create_new_user = findViewById(R.id.button_create_new_user);
+        create_new_user.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, UserEditProfileActivity.class);
+                Bundle b = new Bundle();
+                b.putString("role", "attendee");
+                intent.putExtras(b);
+                startActivity(intent);
+            }
+        });
+
 
         //  TODO: Demo Button, Need to be deleted
         final Button attendee_home = findViewById(R.id.attendee_home);

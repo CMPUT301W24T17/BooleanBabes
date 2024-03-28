@@ -63,7 +63,8 @@ public class EventBrowseActivity extends AppCompatActivity {
                     for (QueryDocumentSnapshot doc : querySnapshots) {
                         String eventID = doc.getId();
                         // Parse the event data and add it to your list, then notify the adapter
-                        Event tempEvent = parseEvent(doc);
+                        Event tempEvent = EventUtility.parseEvent(doc);
+
                         eventDataList.add(tempEvent);
                     }
                     eventAdapter.notifyDataSetChanged();

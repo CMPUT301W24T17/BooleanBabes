@@ -81,30 +81,33 @@ public class FirebaseAttendeeManager {
     public Task<List<Attendee>> getEventAttendees(String eventID) {
         final List<Attendee> attendeesList = new ArrayList<>();
 
-        return db.collection("attendee").get().continueWith(task -> {
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                    List<String> eventList = (List<String>) document.get("eventList");
-                    if (eventList != null && eventList.contains(eventID)) {
-                        Attendee attendee = new Attendee(
-                                document.getString("name"),
-                                document.getString("profilePicID"),
-                                document.getString("phone"),
-                                document.getString("email"),
-                                null,
-                                Boolean.TRUE.equals(document.getBoolean("notification")),
-                                (ArrayList<String>) eventList
-                        );
-                        attendeesList.add(attendee);
-                        System.out.println("Attendee: " + attendee.getName() + " is attending event: " + eventID);
+        return FirebaseFirestore.getInstance()
+                .collection("attendee")
+                .get()
+                .continueWith(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            List<String> eventList = (List<String>) document.get("eventList");
+                            if (eventList != null && eventList.contains(eventID)) {
+                                Attendee attendee = new Attendee(
+                                        document.getString("name"),
+                                        document.getString("profilePicID"),
+                                        document.getString("phone"),
+                                        document.getString("email"),
+                                        null, // geolocation is null as per your screenshot
+                                        document.getBoolean("notification"),
+                                        new ArrayList<>(eventList) // Create a new ArrayList from eventList to avoid UnsupportedOperationException
+                                );
+                                attendeesList.add(attendee);
+                            }
+                        }
+                        return attendeesList;
+                    } else {
+                        throw task.getException();
                     }
-                }
-            } else {
-                System.out.println("Error getting documents: " + task.getException());
-            }
-            return attendeesList;
-        });
+                });
     }
+
 
     /**
      * Fetches all attendees from Firebase.
@@ -127,6 +130,8 @@ public class FirebaseAttendeeManager {
                             null
                     );
                     attendeesList.add(attendee);
+                    // Log the details of the attendee for debugging purposes
+                    Log.d("getAllAttendees", "Name: " + attendee.getName() + ", Email: " + attendee.getEmail());
                 }
             }
             return attendeesList;

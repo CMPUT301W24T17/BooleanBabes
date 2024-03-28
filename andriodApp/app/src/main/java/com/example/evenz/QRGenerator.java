@@ -21,7 +21,6 @@ public class QRGenerator {
             finalbitmap = encoder1.createBitmap(matrix);
             return finalbitmap;
 
-
         } catch (WriterException e) {
             e.printStackTrace();
 

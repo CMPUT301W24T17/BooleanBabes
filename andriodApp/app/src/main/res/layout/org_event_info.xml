@@ -9,40 +9,13 @@
     tools:context=".MainActivity">
 
   <ImageView
-      android:id="@+id/back_attendee_event_info"
-      android:layout_width="14.21dp"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="20dp"
-      android:layout_marginTop="17.66dp"
-      android:layout_marginEnd="357.76dp"
-      android:layout_marginBottom="766.48dp"
-      android:scaleType="centerInside"
-      android:src="@drawable/back_less" />
-
-  <TextView
-      android:id="@+id/container_frame13"
-      android:layout_width="wrap_content"
-      android:layout_height="24dp"
-      android:layout_gravity="top|start"
-      android:layout_marginStart="113dp"
-      android:layout_marginTop="16dp"
-      android:gravity="center_horizontal|center_vertical"
-      android:includeFontPadding="false"
-      android:maxLines="1"
-      android:singleLine="true"
-      android:text="Event Information"
-      android:textColor="#FF1A1A1A"
-      android:textSize="20sp"
-      android:textStyle="bold" />
-
-  <ImageView
-      android:id="@+id/image_career_fairs_web_banner"
+      android:id="@+id/poster_org_eventInfo"
       android:layout_width="361dp"
       android:layout_height="214dp"
-      android:layout_marginStart="15dp"
-      android:layout_marginTop="57dp"
       android:layout_gravity="top|start"
-      android:scaleType="centerInside"
+      android:layout_marginStart="20dp"
+      android:layout_marginTop="8dp"
+      android:scaleType="centerCrop"
       android:src="@drawable/image_career_fairs_web_banner"
       android:contentDescription="event_poster" />
 
@@ -50,20 +23,20 @@
       android:id="@+id/location_pin_event_info_signup"
       android:layout_width="17.5dp"
       android:layout_height="25dp"
-      android:layout_marginStart="15dp"
-      android:layout_marginTop="275dp"
+      android:layout_marginStart="20dp"
+      android:layout_marginTop="230dp"
       android:layout_gravity="top|start"
       android:scaleType="centerInside"
       android:src="@drawable/location_pin"
       android:contentDescription="map_icon" />
 
   <TextView
-      android:id="@+id/text_ccis_uofa"
+      android:id="@+id/loc_org_eventInfo"
       android:layout_width="wrap_content"
-      android:layout_height="17dp"
-      android:layout_marginStart="40dp"
-      android:layout_marginTop="275dp"
+      android:layout_height="wrap_content"
       android:layout_gravity="top|start"
+      android:layout_marginStart="45dp"
+      android:layout_marginTop="235dp"
       android:gravity="start|center_vertical"
       android:includeFontPadding="false"
       android:maxLines="1"
@@ -73,10 +46,22 @@
       android:textSize="13sp" />
 
   <TextView
+      android:id="@+id/org_event_detail_welcome"
+      android:layout_width="358dp"
+      android:layout_height="48dp"
+      android:layout_marginStart="20dp"
+      android:layout_marginTop="265dp"
+      android:gravity="left|top"
+      android:includeFontPadding="false"
+      android:lineHeight="24dp"
+      android:text="👋 Welcome to Career Launchpad 2024! 🚀\n"
+      android:textColor="#FF000000"
+      android:textSize="20dp" />
+  <TextView
       android:id="@+id/text_event_info"
       android:layout_width="wrap_content"
       android:layout_height="20dp"
-      android:layout_marginStart="15dp"
+      android:layout_marginStart="20dp"
       android:layout_marginTop="320dp"
       android:layout_gravity="top|start"
       android:gravity="start|center_vertical"
@@ -91,17 +76,19 @@
       android:layout_width="360dp"
       android:layout_height="wrap_content"
       android:layout_gravity="top|start"
-      android:layout_marginStart="15dp"
+      android:layout_marginStart="20dp"
       android:layout_marginTop="343dp"
       android:background="@drawable/drawable_shape">
 
     <TextView
-        android:id="@+id/continer_event_summary_date_icon1"
-        android:layout_width="360dp"
-        android:layout_height="wrap_content"
+        android:id="@+id/info_org_eventInfo"
+        android:layout_width="350dp"
+        android:layout_height="310dp"
+        android:layout_marginStart="5dp"
         android:layout_gravity="bottom|start"
         android:gravity="start|top"
         android:includeFontPadding="false"
+        android:scrollbars="vertical"
         android:lineHeight="19sp"
         android:text="Career fairs are a great way to connect with U of A students, postdoctoral fellows, and alumni, and meet potential employee prospects.
 You can expect to connect with a variety of students and alumni from all areas of study at our Careers Day and Spring Hiring Fair events, or with students from the specific programs at the Education Fair and the Pharmacy Fair.
@@ -132,10 +119,10 @@ At each of our career fairs, chat with a career advisor for a free 10-minute rev
       android:layout_marginEnd="314.43dp"
       android:layout_marginBottom="30.81dp"
       android:scaleType="centerInside"
-      android:src="@drawable/profile" />
+      android:src="@drawable/attendees_black" />
 
   <ImageView
-      android:id="@+id/home_admin_browse_attendee"
+      android:id="@+id/home_event_details_org"
       android:layout_width="38dp"
       android:layout_height="38dp"
       android:layout_marginStart="172dp"
@@ -144,13 +131,13 @@ At each of our career fairs, chat with a career advisor for a free 10-minute rev
       android:src="@drawable/home"/>
 
   <ImageView
-      android:id="@+id/event_list"
+      android:id="@+id/shareQR_event_details"
       android:layout_width="38dp"
       android:layout_height="38dp"
       android:layout_marginStart="300dp"
       android:layout_marginTop="700dp"
       android:layout_marginBottom="0.05dp"
       android:scaleType="centerInside"
-      android:src="@drawable/photos" />
+      android:src="@drawable/share" />
 
 </FrameLayout>
